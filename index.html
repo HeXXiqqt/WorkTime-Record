@@ -1,79 +1,42 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工时打卡系统 - 文艺复兴拟物风格</title>
+    <title>工时打卡系统 - 云端同步优化版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
-            --primary: #8B4513;
-            --primary-light: #A0522D;
-            --secondary: #CD853F;
-            --success: #228B22;
-            --info: #4682B4;
-            --warning: #D2691E;
-            --purple: #8A2BE2;
-            --light: #F5DEB3;
-            --dark: #5D4037;
-            --gray: #8B7355;
-            --border: #A0522D;
-            --batch-selected: #F4A460;
-            --batch-hover: #DEB887;
-            --chart-bg: #FFF8DC;
-            --gist-bg: #E6E6FA;
-            --gist-border: #9370DB;
-            
-            --shadow-light: 0 2px 8px rgba(139, 69, 19, 0.2);
-            --shadow-medium: 0 4px 16px rgba(139, 69, 19, 0.3);
-            --shadow-heavy: 0 8px 24px rgba(139, 69, 19, 0.4);
+            --primary: #FF5252;        --primary-light: #FF7B7B;
+            --secondary: #FF9800;      --success: #4CAF50;
+            --info: #2196F3;           --warning: #E91E63;
+            --purple: #9C27B0;         --light: #f8f9fa;
+            --dark: #212529;           --gray: #6c757d;
+            --border: #dee2e6;         --batch-selected: #e3f2fd;
+            --batch-hover: #bbdefb;    --chart-bg: #f8fafd;
+            --gist-bg: #e0f7fa;        --gist-border: #26c6da;
         }
-        
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            background: linear-gradient(135deg, #f5deb3, #eedfcc);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #e4edf9);
             color: var(--dark);
             min-height: 100vh;
             padding: 15px 15px 100px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f5deb3"/><path d="M0 0L100 100M100 0L0 100" stroke="%23eedfcc" stroke-width="0.5"/></svg>');
         }
-        
-        .container { 
-            max-width: 500px; 
-            margin: auto; 
-        }
-        
+        .container { max-width: 500px; margin: auto; }
         header {
-            background: linear-gradient(145deg, #D2B48C, #F5DEB3);
-            border-radius: 20px;
-            box-shadow: var(--shadow-heavy);
-            padding: 20px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+            padding: 18px 20px;
             margin-bottom: 20px;
-            border: 3px solid var(--primary);
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(120deg, #fff, #f5f7fa);
         }
-        
-        header::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--warning));
-        }
-        
         .header-content {
             display: flex;
             justify-content: space-between;
@@ -82,463 +45,259 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        
         .month-year {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--dark);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            font-family: 'Times New Roman', serif;
-            letter-spacing: 1px;
+            color: var(--primary);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        .nav-buttons { 
-            display: flex; 
-            gap: 12px; 
-        }
-        
+        .nav-buttons { display: flex; gap: 12px; }
         .btn {
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
-            color: #FFF8DC;
-            border: 2px solid var(--dark);
+            background: var(--primary);
+            color: #fff;
+            border: none;
             border-radius: 12px;
-            padding: 10px 16px;
-            font-size: .95rem;
+            padding: 8px 15px;
+            font-size: .9rem;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-medium);
-            font-family: 'Georgia', serif;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
+            transition: .2s;
+            box-shadow: 0 2px 8px rgba(67, 97, 238, .3);
         }
-        
-        .btn::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(255,255,255,0.2), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-heavy);
+            background: var(--secondary);
+            transform: translateY(-2px);
         }
-        
-        .btn:hover::after {
-            opacity: 1;
-        }
-        
-        .btn:active {
-            transform: translateY(1px);
-            box-shadow: var(--shadow-light);
-        }
-        
-        .btn i { 
-            margin-right: 8px; 
-        }
-        
+        .btn i { margin-right: 6px; }
         .btn-outline {
             background: transparent;
             color: var(--primary);
             border: 2px solid var(--primary);
-            box-shadow: inset 0 0 0 2px white;
         }
-        
         .btn-outline:hover {
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
+            background: var(--primary);
             color: #fff;
         }
-        
-        .btn-warning { 
-            background: linear-gradient(145deg, var(--warning), #B22222);
-        }
-        
-        .btn-warning:hover { 
-            background: linear-gradient(145deg, #B22222, #8B0000); 
-        }
-        
+        .btn-warning { background: var(--warning); }
+        .btn-warning:hover { background: #d81b60; }
         .btn-gist {
-            background: linear-gradient(145deg, #24292e, #333333);
+            background: #24292e;
             color: white;
         }
-        
         .btn-gist:hover {
-            background: linear-gradient(145deg, #333333, #444444);
+            background: #444d56;
         }
-        
         .btn-success {
-            background: linear-gradient(145deg, #228B22, #32CD32);
+            background: #4CAF50;
         }
-        
-        .btn-success:hover {
-            background: linear-gradient(145deg, #32CD32, #228B22);
-        }
-        
-        .tabs { 
-            display: flex; 
-            background: linear-gradient(145deg, #DEB887, #F5DEB3);
-            border-radius: 50px; 
-            padding: 6px; 
-            margin-top: 15px;
-            border: 2px solid var(--primary);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
+        .tabs { display: flex; background: #f1f5fe; border-radius: 50px; padding: 5px; margin-top: 10px; }
         .tab {
             flex: 1;
             text-align: center;
-            padding: 12px;
+            padding: 10px;
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            color: var(--dark);
-            font-family: 'Georgia', serif;
-            text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.1);
-            position: relative;
+            transition: .3s;
         }
-        
         .tab.active {
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
-            color: #FFF8DC;
-            box-shadow: var(--shadow-medium);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
         }
-        
         .calendar {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 20px;
-            box-shadow: var(--shadow-heavy);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
             overflow: hidden;
             margin-bottom: 20px;
-            border: 3px solid var(--primary);
         }
-        
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: #FFF8DC;
-            font-weight: 700;
+            background: linear-gradient(90deg, var(--purple), var(--info));
+            color: #fff;
+            font-weight: 600;
             text-align: center;
-            padding: 15px 0;
-            font-family: 'Georgia', serif;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            letter-spacing: 1px;
+            padding: 12px 0;
         }
-        
         .days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            padding: 12px;
-            background: linear-gradient(145deg, #F5DEB3, #DEB887);
+            gap: 2px;
+            padding: 10px;
+            background: #f8fafd;
         }
-        
         .day {
             aspect-ratio: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            border-radius: 15px;
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
+            border-radius: 12px;
+            background: #fff;
             position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: .2s;
             font-weight: 600;
-            box-shadow: var(--shadow-light);
-            border: 1px solid var(--border);
-            padding-top: 5px;
-            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
+            border: 1px solid #f0f0f0;
+            padding-top: 3px;
         }
-        
-        .day::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(255,255,255,0.3), transparent);
-            border-radius: 15px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
         .day:hover {
+            background: #f0f5ff;
             transform: scale(1.05);
-            box-shadow: var(--shadow-medium);
         }
-        
-        .day:hover::before {
-            opacity: 1;
-        }
-        
-        .day.other-month { 
-            color: var(--gray); 
-            opacity: .7;
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA);
-        }
-        
+        .day.other-month { color: var(--gray); opacity: .6; }
         .day.today {
-            background: linear-gradient(145deg, #FFE4B5, #FFD700);
-            color: var(--dark);
+            background: linear-gradient(135deg, #e6f0ff, #d1e5ff);
+            color: var(--info);
             font-weight: 700;
-            border: 2px solid var(--warning);
-            box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.3);
-        }
-        
-        .day.has-record {
-            background: linear-gradient(145deg, #E0FFFF, #AFEEEE);
             border: 2px solid var(--info);
         }
-        
+        .day.has-record {
+            background: linear-gradient(135deg, #f0f8ff, #e0f0ff);
+        }
         .day.batch-selected {
-            background: linear-gradient(145deg, var(--batch-selected), #F5DEB3);
-            box-shadow: inset 0 0 0 3px var(--primary);
+            background: var(--batch-selected);
+            box-shadow: inset 0 0 0 2px var(--primary);
         }
-        
-        .day.batch-selected:hover { 
-            background: linear-gradient(145deg, var(--batch-hover), #F5DEB3); 
-        }
-        
-        .day-record { 
-            font-size: .65rem; 
-            color: var(--success); 
-            margin-top: 3px; 
-            font-weight: 500; 
-        }
-        
+        .day.batch-selected:hover { background: var(--batch-hover); }
+        .day-record { font-size: .6rem; color: var(--success); margin-top: 2px; font-weight: 500; }
         .day-holiday {
-            font-size: .6rem;
-            color: #8B0000;
+            font-size: .55rem;
+            color: #e74c3c;
             margin-top: 2px;
-            background: linear-gradient(145deg, rgba(231, 76, 60, 0.2), rgba(231, 76, 60, 0.1));
-            padding: 2px 5px;
-            border-radius: 6px;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 1px 4px;
+            border-radius: 4px;
             line-height: 1.2;
-            font-weight: 600;
         }
-        
         .day-lunar {
-            font-size: .6rem;
+            font-size: .55rem;
             color: var(--gray);
-            margin-top: 2px;
+            margin-top: 1px;
             line-height: 1.2;
-            font-style: italic;
         }
-        
         .day-total {
-            font-size: .65rem;
+            font-size: .6rem;
             font-weight: 600;
             color: var(--info);
-            margin-top: 3px;
-            background: linear-gradient(145deg, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.1));
-            padding: 2px 5px;
-            border-radius: 6px;
+            margin-top: 2px;
+            background: rgba(33, 150, 243, 0.1);
+            padding: 1px 4px;
+            border-radius: 4px;
             line-height: 1.2;
         }
-        
         .day-gregorian {
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 0.9rem;
+            font-weight: 600;
             line-height: 1.2;
-            margin-top: 3px;
-            text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.1);
+            margin-top: 2px;
         }
-        
         .stats {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 20px;
-            box-shadow: var(--shadow-heavy);
-            padding: 25px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+            padding: 20px;
             margin-bottom: 20px;
-            border: 3px solid var(--primary);
-            position: relative;
+            background: linear-gradient(120deg, #fff, #f8fafd);
         }
-        
-        .stats::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 8px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--warning));
-        }
-        
         .stats h3 {
-            margin-bottom: 20px;
-            color: var(--dark);
+            margin-bottom: 15px;
+            color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-family: 'Georgia', serif;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            font-size: 1.4rem;
+            gap: 8px;
         }
-        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
-        
         .stat-card {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border-radius: 16px;
-            padding: 20px;
+            background: linear-gradient(135deg, #f8fafd, #edf3ff);
+            border-radius: 14px;
+            padding: 15px;
             text-align: center;
-            border-left: 5px solid var(--primary);
-            box-shadow: var(--shadow-medium);
-            border: 2px solid var(--border);
-            position: relative;
-            overflow: hidden;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
-        
-        .stat-card::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(255,255,255,0.2), transparent);
-            border-radius: 16px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .stat-card:hover::after {
-            opacity: 1;
-        }
-        
         .stat-card:nth-child(2) { border-left-color: var(--secondary); }
         .stat-card:nth-child(3) { border-left-color: var(--success); }
         .stat-card:nth-child(4) { border-left-color: var(--info); }
         .stat-card:nth-child(5) { border-left-color: var(--warning); }
         .stat-card:nth-child(6) { border-left-color: var(--purple); }
-        
         .stat-card .value {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--primary);
-            margin: 8px 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin: 5px 0;
         }
-        
         .stat-card .label {
-            font-size: .9rem;
-            color: var(--dark);
-            font-weight: 600;
-            font-family: 'Georgia', serif;
+            font-size: .85rem;
+            color: var(--gray);
         }
-        
         .chart-container {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 25px;
+            background: var(--chart-bg);
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 20px;
             position: relative;
-            box-shadow: var(--shadow-medium);
-            border: 2px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-        
         .chart-title {
             font-weight: 600;
-            color: var(--dark);
-            font-family: 'Georgia', serif;
-            font-size: 1.2rem;
+            color: var(--primary);
         }
-        
-        .chart-actions { 
-            display: flex; 
-            gap: 10px; 
-        }
-        
+        .chart-actions { display: flex; gap: 8px; }
         .chart-btn {
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
+            background: transparent;
             border: none;
-            color: #FFF8DC;
+            color: var(--primary);
             cursor: pointer;
-            font-size: 0.95rem;
-            padding: 8px 15px;
-            border-radius: 10px;
-            font-weight: 600;
-            box-shadow: var(--shadow-light);
-            transition: all 0.3s;
+            font-size: 0.9rem;
         }
-        
-        .chart-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-        
-        .chart-btn.active {
-            background: linear-gradient(145deg, var(--secondary), var(--warning));
-        }
-        
-        .chart-wrapper { 
-            height: 280px; 
-            position: relative; 
-        }
-        
+        .chart-wrapper { height: 250px; position: relative; }
         .action-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
-            padding: 20px;
+            background: #fff;
+            padding: 15px;
             display: flex;
             justify-content: space-around;
-            box-shadow: 0 -6px 20px rgba(139, 69, 19, 0.5);
-            border-top-left-radius: 25px;
-            border-top-right-radius: 25px;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, .08);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
             z-index: 100;
-            border-top: 3px solid var(--dark);
         }
-        
         .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            color: #FFF8DC;
-            font-size: .9rem;
-            transition: all 0.3s;
-            font-family: 'Georgia', serif;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            gap: 5px;
+            color: var(--gray);
+            font-size: .8rem;
+            transition: .2s;
         }
-        
         .action-btn.active {
-            color: #FFD700;
-            transform: scale(1.1);
+            color: var(--primary);
         }
-        
-        .action-btn i { 
-            font-size: 1.6rem; 
-        }
-        
+        .action-btn i { font-size: 1.4rem; }
         .modal {
             position: fixed;
             top: 0;
@@ -554,371 +313,211 @@
             pointer-events: none;
             transition: .3s;
         }
-        
-        .modal.active { 
-            opacity: 1; 
-            pointer-events: all; 
-        }
-        
+        .modal.active { opacity: 1; pointer-events: all; }
         .modal-content {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 25px;
+            background: #fff;
+            border-radius: 20px;
             width: 90%;
-            max-width: 420px;
+            max-width: 400px;
             overflow: hidden;
             transform: translateY(20px);
             transition: .3s;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            border: 4px solid var(--primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
-        
-        .modal.active .modal-content { 
-            transform: translateY(0); 
-        }
-        
+        .modal.active .modal-content { transform: translateY(0); }
         .modal-header {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: #FFF8DC;
-            padding: 25px;
+            color: #fff;
+            padding: 20px;
             text-align: center;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            font-family: 'Georgia', serif;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
-        
-        .modal-body { 
-            padding: 25px; 
-        }
-        
-        .form-group { 
-            margin-bottom: 20px; 
-        }
-        
+        .modal-body { padding: 20px; }
+        .form-group { margin-bottom: 15px; }
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 600;
             color: var(--dark);
-            font-family: 'Georgia', serif;
         }
-        
         .form-group input {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1.05rem;
-            transition: all 0.3s;
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
         }
-        
         .form-group input:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(139, 69, 19, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.2);
         }
-        
-        .modal-footer { 
-            display: flex; 
-            padding: 0 25px 25px; 
-            gap: 12px; 
-        }
-        
-        .btn-block { 
-            display: block; 
-            width: 100%; 
-            text-align: center; 
-        }
-        
-        .tabs-inner { 
-            display: flex; 
-            border-bottom: 2px solid var(--border); 
-            margin-bottom: 20px; 
-        }
-        
+        .modal-footer { display: flex; padding: 0 20px 20px; gap: 10px; }
+        .btn-block { display: block; width: 100%; text-align: center; }
+        .tabs-inner { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
         .tab-inner {
             flex: 1;
             text-align: center;
-            padding: 12px;
+            padding: 10px;
             cursor: pointer;
             transition: .2s;
             color: var(--gray);
-            font-weight: 600;
-            font-family: 'Georgia', serif;
         }
-        
         .tab-inner.active {
             color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-            font-weight: 700;
+            border-bottom: 2px solid var(--primary);
+            font-weight: 600;
         }
-        
-        .tab-content { 
-            display: none; 
-        }
-        
-        .tab-content.active { 
-            display: block; 
-        }
-        
-        .shortcut-list { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-        }
-        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .shortcut-list { display: flex; flex-direction: column; gap: 10px; }
         .shortcut-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            padding: 15px 20px;
-            border-radius: 12px;
+            background: #f1f5fe;
+            padding: 10px 15px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
-            border-left: 4px solid var(--primary);
-            box-shadow: var(--shadow-light);
-            border: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
         }
-        
         .shortcut-item:hover {
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA);
-            transform: translateX(8px);
-            box-shadow: var(--shadow-medium);
+            background: #e3edff;
+            transform: translateX(5px);
         }
-        
-        .shortcut-item button { 
-            background: transparent; 
-            border: none; 
-            color: red; 
-            cursor: pointer; 
-        }
-        
+        .shortcut-item button { background: transparent; border: none; color: red; cursor: pointer; }
         .year-table {
             width: 100%;
             border-collapse: collapse;
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border-radius: 18px;
+            background: #fff;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: var(--shadow-medium);
-            border: 3px solid var(--primary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
         }
-        
-        .year-table th, .year-table td { 
-            padding: 12px; 
-            text-align: center; 
-            border-bottom: 1px solid var(--border); 
-        }
-        
+        .year-table th, .year-table td { padding: 10px; text-align: center; border-bottom: 1px solid var(--border); }
         .year-table th {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            color: #FFF8DC;
-            font-weight: 600;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            color: #fff;
         }
-        
-        .year-table tr:last-child td { 
-            border-bottom: none; 
-        }
-        
-        .year-table .btn-outline { 
-            margin: 0 4px; 
-        }
-        
+        .year-table tr:last-child td { border-bottom: none; }
+        .year-table .btn-outline { margin: 0 3px; }
         .data-preview {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 20px;
-            box-shadow: var(--shadow-heavy);
-            padding: 25px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+            padding: 20px;
             margin-bottom: 20px;
-            max-height: 500px;
+            max-height: 400px;
             overflow-y: auto;
-            border: 3px solid var(--primary);
+            background: linear-gradient(120deg, #fff, #f8fafd);
         }
-        
         .data-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
-        
-        .data-actions { 
-            display: flex; 
-            gap: 12px; 
-            flex-wrap: wrap; 
-        }
-        
-        .data-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-        
+        .data-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .data-table { width: 100%; border-collapse: collapse; }
         .data-table thead th {
-            background: linear-gradient(145deg, #DEB887, #F5DEB3);
-            padding: 14px 12px;
+            background: #f1f5fe;
+            padding: 12px 10px;
             text-align: left;
             font-weight: 600;
-            color: var(--dark);
+            color: var(--primary);
             position: sticky;
             top: 0;
             z-index: 1;
-            background-color: #FFF8DC;
-            border-bottom: 2px solid var(--primary);
+            background-color: #fff;
         }
-        
         .data-table tbody td {
-            padding: 14px 12px;
+            padding: 12px 10px;
             border-bottom: 1px solid var(--border);
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
         }
-        
-        .data-table tr:last-child td { 
-            border-bottom: none; 
-        }
-        
-        .data-table tr:hover td {
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA);
-        }
-        
+        .data-table tr:last-child td { border-bottom: none; }
         .del-btn {
-            background: linear-gradient(145deg, #B22222, #8B0000);
-            color: white;
+            background: transparent;
+            color: red;
             border: none;
             cursor: pointer;
-            padding: 8px;
+            padding: 5px;
             border-radius: 50%;
-            transition: all 0.3s;
-            box-shadow: var(--shadow-light);
         }
-        
         .del-btn:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-medium);
+            background: rgba(255,0,0,0.1);
         }
-        
         .batch-controls {
             display: flex;
             justify-content: space-between;
-            background: linear-gradient(145deg, #DEB887, #F5DEB3);
-            padding: 15px 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border: 2px solid var(--primary);
-            box-shadow: var(--shadow-medium);
+            background: #f1f5fe;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #e3f2fd, #bbdefb);
         }
-        
         .batch-info {
             font-weight: 600;
-            color: var(--dark);
+            color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-family: 'Georgia', serif;
+            gap: 5px;
         }
-        
-        .batch-actions { 
-            display: flex; 
-            gap: 10px; 
-        }
-        
-        .chart-detail-content { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
-        
+        .batch-actions { display: flex; gap: 8px; }
+        .chart-detail-content { display: flex; flex-direction: column; gap: 15px; }
         .detail-item {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: var(--shadow-light);
-            border: 1px solid var(--border);
-        }
-        
-        .detail-item h4 {
-            margin-bottom: 15px;
-            color: var(--dark);
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 10px;
-            font-family: 'Georgia', serif;
-        }
-        
-        .detail-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px; 
-        }
-        
-        .detail-card {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border-radius: 12px;
+            background: #f8fafd;
             padding: 15px;
-            box-shadow: var(--shadow-light);
-            text-align: center;
-            border-top: 4px solid var(--primary);
-            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        
+        .detail-item h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+        .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .detail-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            border-top: 3px solid var(--primary);
+        }
         .detail-card:nth-child(2) { border-top-color: var(--secondary); }
         .detail-card:nth-child(3) { border-top-color: var(--success); }
         .detail-card:nth-child(4) { border-top-color: var(--info); }
-        
-        .detail-card .value { 
-            font-size: 1.4rem; 
-            font-weight: 700; 
-            color: var(--primary);
-        }
-        
-        .detail-card .label { 
-            font-size: 0.9rem; 
-            color: var(--dark); 
-            margin-top: 8px; 
-            font-weight: 600;
-        }
-        
-        .exit-confirm-modal .modal-content { 
-            max-width: 380px; 
-        }
-        
-        .exit-confirm-modal .modal-body { 
-            text-align: center; 
-        }
-        
-        .exit-confirm-modal .modal-footer { 
-            justify-content: center; 
-        }
-        
+        .detail-card .value { font-size: 1.2rem; font-weight: 700; }
+        .detail-card .label { font-size: 0.8rem; color: var(--gray); margin-top: 5px; }
+        .exit-confirm-modal .modal-content { max-width: 350px; }
+        .exit-confirm-modal .modal-body { text-align: center; }
+        .exit-confirm-modal .modal-footer { justify-content: center; }
         .import-btn {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
+            background: transparent;
             color: var(--primary);
             border: 2px dashed var(--primary);
-            padding: 20px;
-            border-radius: 15px;
+            padding: 15px;
+            border-radius: 10px;
             width: 100%;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: .2s;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: 600;
-            font-family: 'Georgia', serif;
-            box-shadow: var(--shadow-light);
         }
-        
         .import-btn:hover {
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA);
+            background: rgba(67, 97, 238, 0.1);
             border-style: solid;
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-medium);
         }
-        
         .import-btn input {
             position: absolute;
             top: 0;
@@ -928,479 +527,125 @@
             opacity: 0;
             cursor: pointer;
         }
-        
         .file-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 15px;
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
+            margin-top: 10px;
+            background: #f1f5fe;
+            padding: 10px;
+            border-radius: 8px;
         }
-        
         .file-name {
-            font-size: 15px;
-            color: var(--dark);
-            font-family: 'Georgia', serif;
+            font-size: 14px;
+            color: var(--gray);
         }
-        
         .rainbow-text {
             background: linear-gradient(90deg, 
-                var(--primary), var(--secondary), var(--warning));
+                #FF5252, #FF9800, #4CAF50, #2196F3, #9C27B0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: bold;
-            font-family: 'Georgia', serif;
         }
-        
         .divider {
-            height: 5px;
+            height: 4px;
             background: linear-gradient(90deg, 
-                var(--primary), var(--secondary), var(--warning));
-            border-radius: 3px;
-            margin: 20px 0;
+                #FF5252, #FF9800, #4CAF50, #2196F3, #9C27B0);
+            border-radius: 2px;
+            margin: 15px 0;
         }
-        
         .gist-sync {
-            background: linear-gradient(145deg, var(--gist-bg), #D8BFD8);
-            border-radius: 20px;
-            padding: 25px;
+            background: var(--gist-bg);
+            border-radius: 16px;
+            padding: 20px;
             margin-bottom: 20px;
-            border: 3px solid var(--gist-border);
-            box-shadow: var(--shadow-heavy);
+            border: 2px solid var(--gist-border);
         }
-        
         .gist-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
             color: #24292e;
-            font-family: 'Georgia', serif;
         }
-        
         .gist-header i {
-            font-size: 1.7rem;
+            font-size: 1.5rem;
         }
-        
         .gist-status {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            border-left: 5px solid var(--info);
-            box-shadow: var(--shadow-light);
-            border: 1px solid var(--border);
+            background: #fff;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--info);
         }
-        
         .gist-status.error {
             border-left-color: var(--warning);
         }
-        
         .gist-actions {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
-        
         .token-input {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
-        
         .token-input input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 10px 15px;
             border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
         }
-        
         .toast {
             position: fixed;
-            top: 25px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.8);
             color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
+            padding: 12px 20px;
+            border-radius: 8px;
             z-index: 2000;
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
-            font-family: 'Georgia', serif;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        
         .toast.show {
             opacity: 1;
         }
-        
         .gist-data-status {
-            background: linear-gradient(145deg, #E8F5E9, #C8E6C9);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            border-left: 4px solid #4caf50;
-            border: 1px solid #4caf50;
-        }
-        
-        .demo-mode {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(145deg, #228B22, #32CD32);
-            color: white;
-            padding: 10px 18px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
-            font-family: 'Georgia', serif;
-        }
-        
-        .info-display {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: var(--shadow-medium);
-            border: 2px solid var(--border);
-        }
-        
-        .info-display h3 {
-            color: var(--dark);
-            margin-bottom: 15px;
-            font-family: 'Georgia', serif;
-        }
-        
-        .info-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-        
-        .info-stat {
-            text-align: center;
-            padding: 15px;
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 12px;
-            box-shadow: var(--shadow-light);
-        }
-        
-        .info-stat .value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .info-stat .label {
-            font-size: 0.9rem;
-            color: var(--dark);
-            margin-top: 5px;
-        }
-        
-        .analysis-section {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: var(--shadow-medium);
-            border: 2px solid var(--border);
-        }
-        
-        .analysis-section h3 {
-            color: var(--dark);
-            margin-bottom: 15px;
-            font-family: 'Georgia', serif;
-        }
-        
-        .analysis-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .analysis-card {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: var(--shadow-light);
-            text-align: center;
-        }
-        
-        .analysis-card .title {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 10px;
-        }
-        
-        .analysis-card .value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        /* 新增：数据预览筛选和批量更改样式 */
-        .data-filters {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 2px solid var(--border);
-            box-shadow: var(--shadow-light);
-        }
-        
-        .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .filter-btn {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .filter-btn:hover {
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-light);
-        }
-        
-        .filter-btn.active {
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
-            color: #FFF8DC;
-            border-color: var(--dark);
-        }
-        
-        .filter-input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .filter-input-group input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-        }
-        
-        .batch-edit-controls {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
-            border: 2px solid var(--border);
-            box-shadow: var(--shadow-light);
-            display: none;
-        }
-        
-        .batch-edit-controls.active {
-            display: block;
-        }
-        
-        .batch-edit-controls h4 {
-            margin-bottom: 10px;
-            color: var(--dark);
-            font-family: 'Georgia', serif;
-        }
-        
-        .batch-edit-form {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .batch-edit-form .form-group {
-            margin-bottom: 0;
-        }
-        
-        .batch-edit-form input {
-            padding: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .batch-edit-form label {
-            font-size: 0.85rem;
-        }
-        
-        .batch-edit-summary {
-            background: linear-gradient(145deg, #E8F5E9, #C8E6C9);
+            background: #e8f5e9;
             padding: 10px;
             border-radius: 8px;
-            font-size: 0.85rem;
             margin-top: 10px;
+            font-size: 0.85rem;
             border-left: 4px solid #4caf50;
-            border: 1px solid #4caf50;
         }
-        
-        .batch-edit-summary.error {
-            background: linear-gradient(145deg, #FFEBEE, #FFCDD2);
-            border-left-color: #f44336;
-            border-color: #f44336;
-        }
-        
-        .batch-edit-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .batch-edit-actions .btn {
-            flex: 1;
-            padding: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .data-table tbody tr.hidden {
-            display: none;
-        }
-        
-        .data-table tbody tr.selected {
-            background: linear-gradient(145deg, #FFF8DC, #F5DEB3) !important;
-            border-left: 4px solid var(--primary);
-        }
-        
-        .data-table tbody tr.selected td {
-            background: transparent !important;
-        }
-        
-        .data-table tbody tr:hover.selected {
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA) !important;
-        }
-        
-        .select-all-btn {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 10px;
-        }
-        
-        .select-all-btn:hover {
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-light);
-        }
-        
-        .select-all-btn.active {
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
-            color: #FFF8DC;
-            border-color: var(--dark);
-        }
-        
-        /* 新增：批量更改选项 */
-        .batch-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        
-        .batch-option {
-            background: linear-gradient(145deg, #FFFFFF, #F5F5DC);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 6px 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .batch-option:hover {
-            background: linear-gradient(145deg, #F5F5DC, #EEE8AA);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-light);
-        }
-        
-        .batch-option.active {
-            background: linear-gradient(145deg, var(--primary), var(--primary-light));
-            color: #FFF8DC;
-            border-color: var(--dark);
-        }
-        
-        /* 响应式设计 */
         @media (max-width: 480px) {
-            .header-content { 
-                flex-direction: column; 
-                gap: 15px; 
-            }
-            
-            .nav-buttons { 
-                width: 100%; 
-                justify-content: center; 
-            }
-            
-            .stats-grid { 
-                grid-template-columns: 1fr; 
-            }
-            
-            .data-actions { 
-                flex-direction: column; 
-            }
-            
-            .batch-controls { 
-                flex-direction: column; 
-                gap: 15px; 
-            }
-            
-            .chart-wrapper { 
-                height: 220px; 
-            }
-            
-            .detail-grid { 
-                grid-template-columns: 1fr; 
-            }
-            
-            .gist-actions { 
-                flex-direction: column; 
-            }
-            
-            .token-input { 
-                flex-direction: column; 
-            }
-            
-            .modal-content {
-                width: 95%;
-            }
-            
-            .batch-edit-form {
-                grid-template-columns: 1fr;
-            }
-            
-            .filter-input-group {
-                flex-direction: column;
-            }
-            
-            .batch-options {
-                flex-direction: column;
-            }
+            .header-content { flex-direction: column; gap: 12px; }
+            .nav-buttons { width: 100%; justify-content: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .data-actions { flex-direction: column; }
+            .batch-controls { flex-direction: column; gap: 10px; }
+            .chart-wrapper { height: 200px; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .gist-actions { flex-direction: column; }
+            .token-input { flex-direction: column; }
+        }
+        .demo-mode {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
     </style>
 </head>
@@ -1412,38 +657,20 @@
             <div class="header-content">
                 <div class="month-year" id="monthYearText">2023年12月</div>
                 <div class="nav-buttons">
-                    <button class="btn" id="prevMonth"><i class="fas fa-chevron-left"></i> 上月</button>
-                    <button class="btn" id="todayBtn">今日</button>
-                    <button class="btn" id="nextMonth">下月 <i class="fas fa-chevron-right"></i></button>
-                    <button class="btn" id="batchBtn"><i class="fas fa-calendar-check"></i> 批量打卡</button>
+                    <button class="btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                    <button class="btn" id="todayBtn">今天</button>
+                    <button class="btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                    <button class="btn" id="batchBtn">批量打卡</button>
                 </div>
             </div>
             <div class="tabs">
                 <div class="tab active" data-view="month">月度视图</div>
                 <div class="tab" data-view="year">年度视图</div>
                 <div class="tab" data-view="data">数据预览</div>
-                <div class="tab" data-view="stats">统计分析</div>
+                <div class="tab" data-view="stats">统计视图</div>
                 <div class="tab" data-view="gist">云端同步</div>
             </div>
         </header>
-        
-        <div class="info-display">
-            <h3><i class="fas fa-info-circle"></i> 本月概览</h3>
-            <div class="info-stats">
-                <div class="info-stat">
-                    <div class="value" id="infoDays">0</div>
-                    <div class="label">打卡天数</div>
-                </div>
-                <div class="info-stat">
-                    <div class="value" id="infoHours">0</div>
-                    <div class="label">总工时</div>
-                </div>
-                <div class="info-stat">
-                    <div class="value" id="infoSalary">¥0</div>
-                    <div class="label">预计收入</div>
-                </div>
-            </div>
-        </div>
         
         <div id="batchControls" class="batch-controls" style="display:none;">
             <div class="batch-info"><i class="fas fa-calendar-check"></i> 已选择 <span id="selectedCount">0</span> 天</div>
@@ -1455,13 +682,15 @@
         </div>
         
         <main>
+            <!-- 月视图 -->
             <div class="calendar" id="monthView">
                 <div class="weekdays">
-                    <div>周一</div><div>周二</div><div>周三</div><div>周四</div><div>周五</div><div>周六</div><div>周日</div>
+                    <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
                 </div>
                 <div class="days" id="calendarDays"></div>
             </div>
             
+            <!-- 年视图 -->
             <div class="data-preview" id="yearView" style="display:none;">
                 <div class="data-header">
                     <h3><i class="fas fa-calendar-alt"></i> 年度打卡数据</h3>
@@ -1469,7 +698,7 @@
                 <table class="year-table">
                     <thead>
                         <tr>
-                            <th>月份</th><th>正班(小时)</th><th>平时加班(小时)</th>
+                            <th>月份</th><th>正班(小时)</th><th>加班(小时)</th>
                             <th>周末加班(小时)</th><th>收入(元)</th><th>操作</th>
                         </tr>
                     </thead>
@@ -1477,92 +706,29 @@
                 </table>
             </div>
             
+            <!-- 数据预览 -->
             <div class="data-preview" id="dataView" style="display:none;">
                 <div class="data-header">
                     <h3><i class="fas fa-table"></i> 打卡数据</h3>
                     <div class="data-actions">
                         <button class="btn btn-outline" id="exportCsv"><i class="fas fa-file-csv"></i> CSV</button>
                         <button class="btn btn-outline" id="exportJson"><i class="fas fa-file-code"></i> JSON</button>
-                        <button class="btn btn-outline" id="importJson"><i class="fas fa-file-import"></i> 导入</button>
-                        <button class="btn btn-outline" id="clearRecords" style="color:#B22222;border-color:#B22222;"><i class="fas fa-trash"></i> 清除全部</button>
+                        <button class="btn btn-outline" id="importJson"><i class="fas fa-file-import"></i> 导入 JSON</button>
+                        <button class="btn btn-outline" id="clearRecords" style="color:red;border-color:red;"><i class="fas fa-trash"></i> 清除全部</button>
                     </div>
                 </div>
-                
-                <!-- 筛选和批量更改控制区 -->
-                <div class="data-filters">
-                    <div class="filter-group">
-                        <button class="filter-btn" data-filter="all">全部</button>
-                        <button class="filter-btn" data-filter="weekday">周一至周五</button>
-                        <button class="filter-btn" data-filter="weekend">周六周日</button>
-                        <button class="filter-btn" data-filter="hasData">有数据</button>
-                        <button class="filter-btn" data-filter="noData">无数据</button>
-                    </div>
-                    <div class="filter-input-group">
-                        <input type="text" id="dateFilter" placeholder="日期搜索 (如: 2023-12)">
-                        <input type="number" id="hoursFilter" placeholder="工时 ≥ (小时)">
-                    </div>
-                    <div class="filter-group">
-                        <button class="select-all-btn" id="selectAllFiltered">全选筛选结果</button>
-                        <button class="filter-btn" id="clearSelection">清除选择</button>
-                    </div>
-                </div>
-                
-                <!-- 批量更改控制区 -->
-                <div class="batch-edit-controls" id="batchEditControls">
-                    <h4><i class="fas fa-edit"></i> 批量更改选中记录</h4>
-                    
-                    <!-- 批量更改选项 -->
-                    <div class="batch-options">
-                        <div class="batch-option" data-type="hours">只改工时</div>
-                        <div class="batch-option" data-type="wages">只改时薪</div>
-                        <div class="batch-option active" data-type="both">工时和时薪</div>
-                    </div>
-                    
-                    <div class="batch-edit-form" id="batchEditForm">
-                        <div class="form-group">
-                            <label>正班工时 (小时)</label>
-                            <input type="number" id="batchNormal" placeholder="0" value="8">
-                        </div>
-                        <div class="form-group">
-                            <label>平时加班工时 (小时)</label>
-                            <input type="number" id="batchOvertime" placeholder="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label>周末加班工时 (小时)</label>
-                            <input type="number" id="batchWeekend" placeholder="0" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label>时薪 (元)</label>
-                            <input type="number" id="batchWage" placeholder="80" value="80">
-                        </div>
-                        <div class="form-group">
-                            <label>平时加班时薪 (元)</label>
-                            <input type="number" id="batchOvertimeWage" placeholder="100" value="100">
-                        </div>
-                        <div class="form-group">
-                            <label>周末加班时薪 (元)</label>
-                            <input type="number" id="batchWeekendWage" placeholder="120" value="120">
-                        </div>
-                    </div>
-                    <div class="batch-edit-summary" id="batchEditSummary"></div>
-                    <div class="batch-edit-actions">
-                        <button class="btn btn-outline" id="cancelBatchEdit">取消</button>
-                        <button class="btn" id="confirmBatchEdit">确认更改</button>
-                    </div>
-                </div>
-                
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="selectAllCheckbox"></th>
-                            <th>日期</th><th>正班(小时)</th><th>平时加班(小时)</th>
-                            <th>周末加班(小时)</th><th>时薪</th><th>平时加班时薪</th><th>周末加班时薪</th><th>日薪</th><th>操作</th>
+                            <th>日期</th><th>正班(小时)</th><th>加班(小时)</th>
+                            <th>周末加班(小时)</th><th>时薪</th><th>日薪</th><th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="dataTableBody"></tbody>
                 </table>
             </div>
             
+            <!-- 统计 -->
             <div class="stats" id="statsView" style="display:none;">
                 <h3><i class="fas fa-chart-bar"></i> 当月统计</h3>
                 <div class="divider"></div>
@@ -1570,11 +736,12 @@
                     <div class="stat-card"><div class="value" id="monthDays">0</div><div class="label">打卡天数</div></div>
                     <div class="stat-card"><div class="value" id="monthNormal">0</div><div class="label">正班工时(小时)</div></div>
                     <div class="stat-card"><div class="value" id="monthHours">0</div><div class="label">总工时(小时)</div></div>
-                    <div class="stat-card"><div class="value" id="monthOvertime">0</div><div class="label">平时加班工时(小时)</div></div>
+                    <div class="stat-card"><div class="value" id="monthOvertime">0</div><div class="label">加班工时(小时)</div></div>
                     <div class="stat-card"><div class="value" id="monthWeekend">0</div><div class="label">周末加班工时(小时)</div></div>
                     <div class="stat-card"><div class="value" id="monthSalary">¥0</div><div class="label">月薪总额</div></div>
                 </div>
                 
+                <!-- 月度图表 -->
                 <div class="chart-container">
                     <div class="chart-header">
                         <div class="chart-title">月度工时分布</div>
@@ -1586,39 +753,18 @@
                     <div class="chart-wrapper"><canvas id="monthHoursChart"></canvas></div>
                 </div>
                 
-                <div class="analysis-section">
-                    <h3><i class="fas fa-search"></i> 数据分析</h3>
-                    <div class="analysis-grid">
-                        <div class="analysis-card">
-                            <div class="title">平均每日工时</div>
-                            <div class="value" id="avgDailyHours">0</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="title">加班频率</div>
-                            <div class="value" id="overtimeFrequency">0%</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="title">周末加班天数</div>
-                            <div class="value" id="weekendDays">0</div>
-                        </div>
-                        <div class="analysis-card">
-                            <div class="title">最高单日收入</div>
-                            <div class="value" id="maxDailyIncome">¥0</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <h3 style="margin-top:30px;"><i class="fas fa-chart-line"></i> 当年统计</h3>
+                <h3 style="margin-top:25px;"><i class="fas fa-chart-line"></i> 当年统计</h3>
                 <div class="divider"></div>
                 <div class="stats-grid" id="yearStatsGrid">
                     <div class="stat-card"><div class="value" id="yearDays">0</div><div class="label">打卡天数</div></div>
                     <div class="stat-card"><div class="value" id="yearNormal">0</div><div class="label">正班工时(小时)</div></div>
                     <div class="stat-card"><div class="value" id="yearHours">0</div><div class="label">总工时(小时)</div></div>
-                    <div class="stat-card"><div class="value" id="yearOvertime">0</div><div class="label">平时加班工时(小时)</div></div>
+                    <div class="stat-card"><div class="value" id="yearOvertime">0</div><div class="label">加班工时(小时)</div></div>
                     <div class="stat-card"><div class="value" id="yearWeekend">0</div><div class="label">周末加班工时(小时)</div></div>
                     <div class="stat-card"><div class="value" id="yearSalary">¥0</div><div class="label">年薪总额</div></div>
                 </div>
                 
+                <!-- 年度图表 -->
                 <div class="chart-container">
                     <div class="chart-header">
                         <div class="chart-title">年度工时趋势</div>
@@ -1630,6 +776,7 @@
                     <div class="chart-wrapper"><canvas id="yearTrendChart"></canvas></div>
                 </div>
                 
+                <!-- 工时类型分布 -->
                 <div class="chart-container">
                     <div class="chart-header">
                         <div class="chart-title">工时类型分布</div>
@@ -1642,6 +789,7 @@
                 </div>
             </div>
             
+            <!-- Gist 同步视图 -->
             <div class="gist-sync" id="gistView" style="display:none;">
                 <div class="gist-header">
                     <i class="fab fa-github"></i>
@@ -1670,9 +818,9 @@
                     <button class="btn btn-outline" id="clearToken"><i class="fas fa-trash"></i> 清除Token</button>
                 </div>
                 
-                <div class="form-group" style="margin-top:25px;">
+                <div class="form-group" style="margin-top:20px;">
                     <label>使用说明：</label>
-                    <ol style="padding-left:25px; margin-top:12px; font-size:0.95rem;">
+                    <ol style="padding-left:20px; margin-top:10px; font-size:0.9rem;">
                         <li>登录GitHub，访问 <a href="https://github.com/settings/tokens" target="_blank">个人访问令牌页面</a></li>
                         <li>生成一个新Token（勾选gist权限）</li>
                         <li>将生成的Token粘贴到上方输入框并保存</li>
@@ -1684,11 +832,13 @@
         </main>
     </div>
     
+    <!-- 底部操作栏 -->
     <div class="action-bar">
         <div class="action-btn active" id="tabCalendar"><i class="fas fa-calendar-alt"></i><span>打卡日历</span></div>
         <div class="action-btn" id="tabQuick"><i class="fas fa-plus-circle"></i><span>快捷打卡</span></div>
     </div>
     
+    <!-- 打卡模态框 -->
     <div class="modal" id="punchModal">
         <div class="modal-content">
             <div class="modal-header"><span id="modalDate">2023年12月15日</span></div>
@@ -1702,11 +852,9 @@
                 </div>
                 <div class="tab-content" id="manualContent">
                     <div class="form-group"><label>正班工时 (小时)</label><input type="number" id="normalHours" placeholder="0" value="8"></div>
-                    <div class="form-group"><label>平时加班工时 (小时)</label><input type="number" id="overtimeHours" placeholder="0" value="0"></div>
+                    <div class="form-group"><label>加班工时 (小时)</label><input type="number" id="overtimeHours" placeholder="0" value="0"></div>
                     <div class="form-group"><label>周末加班工时 (小时)</label><input type="number" id="weekendHours" placeholder="0" value="0"></div>
                     <div class="form-group"><label>时薪 (元)</label><input type="number" id="hourlyWage" placeholder="80" value="80"></div>
-                    <div class="form-group"><label>平时加班时薪 (元)</label><input type="number" id="overtimeWage" placeholder="100" value="100"></div>
-                    <div class="form-group"><label>周末加班时薪 (元)</label><input type="number" id="weekendWage" placeholder="120" value="120"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1716,6 +864,7 @@
         </div>
     </div>
     
+    <!-- 添加快捷打卡模态框 -->
     <div class="modal" id="quickModal">
         <div class="modal-content">
             <div class="modal-header">添加快捷打卡</div>
@@ -1729,7 +878,7 @@
                     <input type="number" id="quickNormal" value="8">
                 </div>
                 <div class="form-group">
-                    <label>平时加班工时 (小时)</label>
+                    <label>加班工时 (小时)</label>
                     <input type="number" id="quickOvertime" value="0">
                 </div>
                 <div class="form-group">
@@ -1740,14 +889,6 @@
                     <label>时薪 (元)</label>
                     <input type="number" id="quickWage" value="80">
                 </div>
-                <div class="form-group">
-                    <label>平时加班时薪 (元)</label>
-                    <input type="number" id="quickOvertimeWage" value="100">
-                </div>
-                <div class="form-group">
-                    <label>周末加班时薪 (元)</label>
-                    <input type="number" id="quickWeekendWage" value="120">
-                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" id="cancelQuick">取消</button>
@@ -1756,6 +897,7 @@
         </div>
     </div>
     
+    <!-- 批量打卡模态框 -->
     <div class="modal" id="batchModal">
         <div class="modal-content">
             <div class="modal-header">批量应用快捷打卡</div>
@@ -1769,19 +911,20 @@
         </div>
     </div>
     
+    <!-- 导入 JSON 模态框 -->
     <div class="modal" id="importModal">
         <div class="modal-content">
             <div class="modal-header">导入打卡数据</div>
             <div class="modal-body">
-                <p>请选择要导入的文件（支持CSV和JSON格式）：</p>
+                <p>请选择导出的JSON文件进行导入：</p>
                 <div class="import-btn">
-                    <i class="fas fa-file-import"></i> 选择文件
-                    <input type="file" id="importFile" accept=".csv,.json">
+                    <i class="fas fa-file-import"></i> 选择JSON文件
+                    <input type="file" id="importFile" accept=".json">
                 </div>
                 <div class="file-info">
                     <span class="file-name" id="importFileName">未选择文件</span>
                 </div>
-                <div style="margin-top: 20px; background: linear-gradient(145deg, #FFE4E1, #FFB6C1); padding: 15px; border-radius: 10px; font-size: 0.9rem;">
+                <div style="margin-top: 15px; background: #fff8e1; padding: 10px; border-radius: 8px; font-size: 0.85rem;">
                     <i class="fas fa-exclamation-triangle"></i> 注意：导入数据将覆盖当前所有打卡记录
                 </div>
             </div>
@@ -1792,6 +935,7 @@
         </div>
     </div>
     
+    <!-- 图表详情模态框 -->
     <div class="modal" id="chartDetailModal">
         <div class="modal-content">
             <div class="modal-header">工时类型详情</div>
@@ -1832,6 +976,7 @@
         </div>
     </div>
     
+    <!-- 退出确认模态框 -->
     <div class="modal exit-confirm-modal" id="exitConfirmModal">
         <div class="modal-content">
             <div class="modal-header">确认离开</div>
@@ -1867,13 +1012,6 @@
         let gistId = null;
         let hasCloudData = false;
         
-        // 数据预览筛选和批量更改相关
-        let currentFilter = 'all';
-        let selectedRows = new Set();
-        let filterDate = '';
-        let filterHours = 0;
-        let batchEditType = 'both'; // 'hours', 'wages', 'both'
-        
         // 图表实例
         let monthHoursChart = null;
         let yearTrendChart = null;
@@ -1901,7 +1039,6 @@
             renderShortcuts();
             setupEventListeners();
             updateGistStatus();
-            updateInfoDisplay();
         });
         
         /* 显示提示 */
@@ -1951,9 +1088,9 @@
             
             records = storedRecords ? JSON.parse(storedRecords) : {};
             shortcuts = storedShortcuts ? JSON.parse(storedShortcuts) : [
-                { name: "标准工作日", normal: 8, overtime: 0, weekend: 0, wage: 80, overtimeWage: 100, weekendWage: 120 },
-                { name: "加班2小时", normal: 8, overtime: 2, weekend: 0, wage: 80, overtimeWage: 100, weekendWage: 120 },
-                { name: "周末加班", normal: 0, overtime: 0, weekend: 8, wage: 100, overtimeWage: 120, weekendWage: 120 }
+                { name: "标准工作日", normal: 8, overtime: 0, weekend: 0, wage: 80 },
+                { name: "加班2小时", normal: 8, overtime: 2, weekend: 0, wage: 80 },
+                { name: "周末加班", normal: 0, overtime: 0, weekend: 8, wage: 100 }
             ];
             
             if (githubToken) {
@@ -2006,6 +1143,7 @@
                 return false;
             }
             
+            // 如果已有gistId，则直接返回true
             if (gistId) {
                 hasCloudData = true;
                 return true;
@@ -2022,6 +1160,8 @@
                 }
                 
                 const gists = await response.json();
+                
+                // 查找匹配的Gist
                 const targetGist = gists.find(gist => 
                     gist.description === '工时打卡数据同步' && 
                     gist.files['punch-data.json']
@@ -2181,9 +1321,7 @@
                     normal: shortcut.normal,
                     overtime: shortcut.overtime,
                     weekend: shortcut.weekend,
-                    hourlyWage: shortcut.wage,
-                    overtimeWage: shortcut.overtimeWage,
-                    weekendWage: shortcut.weekendWage
+                    hourlyWage: shortcut.wage
                 };
             });
             saveAll();
@@ -2212,6 +1350,7 @@
             }
         }
         
+        // 跳转到月份
         function jumpToMonth(month) {
             currentMonth = month;
             renderCalendar(currentYear, currentMonth);
@@ -2222,198 +1361,28 @@
         function renderDataPreview() {
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
-            
-            // 获取所有日期并排序
-            const dates = Object.keys(records).sort((a, b) => b.localeCompare(a));
-            
-            dates.forEach(date => {
-                const rec = records[date];
+            Object.entries(records).sort((a, b) => b[0].localeCompare(a[0])).forEach(([date, rec]) => {
                 const tr = document.createElement('tr');
-                tr.dataset.date = date;
-                tr.dataset.dayOfWeek = new Date(date).getDay();
-                tr.dataset.hasData = 'true';
-                tr.dataset.totalHours = calculateTotalHours(rec);
-                
-                const isSelected = selectedRows.has(date);
-                if (isSelected) tr.classList.add('selected');
-                
                 tr.innerHTML = `
-                    <td><input type="checkbox" class="row-select" data-date="${date}" ${isSelected ? 'checked' : ''}></td>
                     <td>${date}</td>
                     <td>${rec.normal || 0}</td>
                     <td>${rec.overtime || 0}</td>
                     <td>${rec.weekend || 0}</td>
                     <td>${rec.hourlyWage || 80}</td>
-                    <td>${rec.overtimeWage || 100}</td>
-                    <td>${rec.weekendWage || 120}</td>
                     <td>${calculateDaily(rec)}</td>
                     <td><button class="del-btn" data-date="${date}"><i class="fas fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(tr);
             });
-            
-            // 绑定行选择事件
-            tbody.querySelectorAll('.row-select').forEach(checkbox => {
-                checkbox.addEventListener('change', (e) => {
-                    const date = e.target.dataset.date;
-                    const tr = e.target.closest('tr');
-                    
-                    if (e.target.checked) {
-                        selectedRows.add(date);
-                        tr.classList.add('selected');
-                    } else {
-                        selectedRows.delete(date);
-                        tr.classList.remove('selected');
-                    }
-                    
-                    updateBatchEditControls();
-                });
-            });
-            
-            // 绑定删除事件
             tbody.querySelectorAll('.del-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (confirm('确认删除该条记录？')) {
-                        const date = btn.dataset.date;
-                        delete records[date];
-                        selectedRows.delete(date);
+                        delete records[btn.dataset.date];
                         saveAll();
                         renderAll();
                     }
                 });
             });
-            
-            // 更新批量更改控制区
-            updateBatchEditControls();
-        }
-        
-        /* 更新批量更改控制区 */
-        function updateBatchEditControls() {
-            const controls = document.getElementById('batchEditControls');
-            const summary = document.getElementById('batchEditSummary');
-            
-            if (selectedRows.size > 0) {
-                controls.classList.add('active');
-                summary.className = 'batch-edit-summary';
-                summary.innerHTML = `<strong>已选择 ${selectedRows.size} 条记录</strong>`;
-            } else {
-                controls.classList.remove('active');
-                summary.innerHTML = '';
-            }
-        }
-        
-        /* 应用批量更改 */
-        function applyBatchEdit() {
-            const normal = parseFloat(document.getElementById('batchNormal').value) || 0;
-            const overtime = parseFloat(document.getElementById('batchOvertime').value) || 0;
-            const weekend = parseFloat(document.getElementById('batchWeekend').value) || 0;
-            const wage = parseFloat(document.getElementById('batchWage').value) || 80;
-            const overtimeWage = parseFloat(document.getElementById('batchOvertimeWage').value) || 100;
-            const weekendWage = parseFloat(document.getElementById('batchWeekendWage').value) || 120;
-            
-            selectedRows.forEach(date => {
-                const currentRec = records[date] || {};
-                
-                if (batchEditType === 'hours') {
-                    // 只改工时
-                    records[date] = {
-                        normal: normal,
-                        overtime: overtime,
-                        weekend: weekend,
-                        hourlyWage: currentRec.hourlyWage || 80,
-                        overtimeWage: currentRec.overtimeWage || 100,
-                        weekendWage: currentRec.weekendWage || 120
-                    };
-                } else if (batchEditType === 'wages') {
-                    // 只改时薪
-                    records[date] = {
-                        normal: currentRec.normal || 0,
-                        overtime: currentRec.overtime || 0,
-                        weekend: currentRec.weekend || 0,
-                        hourlyWage: wage,
-                        overtimeWage: overtimeWage,
-                        weekendWage: weekendWage
-                    };
-                } else {
-                    // 工时和时薪都改
-                    records[date] = {
-                        normal: normal,
-                        overtime: overtime,
-                        weekend: weekend,
-                        hourlyWage: wage,
-                        overtimeWage: overtimeWage,
-                        weekendWage: weekendWage
-                    };
-                }
-            });
-            
-            saveAll();
-            renderAll();
-            showToast(`已成功更改${selectedRows.size}条记录`);
-        }
-        
-        /* 应用筛选 */
-        function applyFilter(filterType) {
-            currentFilter = filterType;
-            const rows = document.querySelectorAll('#dataTableBody tr');
-            
-            rows.forEach(row => {
-                const dayOfWeek = parseInt(row.dataset.dayOfWeek);
-                const hasData = row.dataset.hasData === 'true';
-                const totalHours = parseFloat(row.dataset.totalHours);
-                const date = row.dataset.date;
-                
-                let show = true;
-                
-                switch(filterType) {
-                    case 'all':
-                        show = true;
-                        break;
-                    case 'weekday':
-                        show = dayOfWeek >= 1 && dayOfWeek <= 5;
-                        break;
-                    case 'weekend':
-                        show = dayOfWeek === 0 || dayOfWeek === 6;
-                        break;
-                    case 'hasData':
-                        show = hasData;
-                        break;
-                    case 'noData':
-                        show = !hasData;
-                        break;
-                }
-                
-                // 应用日期搜索
-                if (filterDate && show) {
-                    show = date.includes(filterDate);
-                }
-                
-                // 应用工时筛选
-                if (filterHours > 0 && show) {
-                    show = totalHours >= filterHours;
-                }
-                
-                if (show) {
-                    row.classList.remove('hidden');
-                } else {
-                    row.classList.add('hidden');
-                    // 如果行被隐藏，取消选择
-                    selectedRows.delete(date);
-                    const checkbox = row.querySelector('.row-select');
-                    if (checkbox) checkbox.checked = false;
-                    row.classList.remove('selected');
-                }
-            });
-            
-            updateBatchEditControls();
-        }
-        
-        /* 更新信息显示 */
-        function updateInfoDisplay() {
-            const m = getMonthStats(currentYear, currentMonth);
-            document.getElementById('infoDays').textContent = m.days;
-            document.getElementById('infoHours').textContent = m.normalHours + m.overtimeHours + m.weekendHours;
-            document.getElementById('infoSalary').textContent = `¥${m.salary}`;
         }
         
         /* 渲染统计 */
@@ -2434,38 +1403,10 @@
             document.getElementById('yearWeekend').textContent = y.weekendHours;
             document.getElementById('yearSalary').textContent = `¥${y.salary}`;
             
-            updateAnalysisData(m, y);
-            
+            // 渲染图表
             renderMonthCharts();
             renderYearTrendChart();
             renderHoursPieChart();
-        }
-        
-        /* 更新增强数据分析 */
-        function updateAnalysisData(monthStats, yearStats) {
-            const avgDaily = monthStats.days > 0 ? 
-                ((monthStats.normalHours + monthStats.overtimeHours + monthStats.weekendHours) / monthStats.days).toFixed(1) : 0;
-            document.getElementById('avgDailyHours').textContent = avgDaily;
-            
-            const overtimeFreq = monthStats.normalHours > 0 ? 
-                ((monthStats.overtimeHours + monthStats.weekendHours) / 
-                (monthStats.normalHours + monthStats.overtimeHours + monthStats.weekendHours) * 100).toFixed(1) : 0;
-            document.getElementById('overtimeFrequency').textContent = `${overtimeFreq}%`;
-            
-            let weekendDays = 0;
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            for (let d = 1; d <= daysInMonth; d++) {
-                const rec = records[formatDate(new Date(currentYear, currentMonth, d))];
-                if (rec && (rec.weekend || 0) > 0) weekendDays++;
-            }
-            document.getElementById('weekendDays').textContent = weekendDays;
-            
-            let maxIncome = 0;
-            Object.values(records).forEach(rec => {
-                const income = calculateDaily(rec);
-                if (income > maxIncome) maxIncome = income;
-            });
-            document.getElementById('maxDailyIncome').textContent = `¥${maxIncome}`;
         }
         
         /* 渲染月度图表 */
@@ -2496,11 +1437,11 @@
                 data: {
                     labels: dayLabels,
                     datasets: [{
-                        label: '正班工时', data: normalHours, backgroundColor: '#228B22', borderWidth: 0
+                        label: '正班工时', data: normalHours, backgroundColor: '#4caf50', borderWidth: 0
                     }, {
-                        label: '平时加班工时', data: overtimeHours, backgroundColor: '#FF8C00', borderWidth: 0
+                        label: '加班工时', data: overtimeHours, backgroundColor: '#ff9800', borderWidth: 0
                     }, {
-                        label: '周末加班工时', data: weekendHours, backgroundColor: '#D2691E', borderWidth: 0
+                        label: '周末加班', data: weekendHours, backgroundColor: '#e91e63', borderWidth: 0
                     }]
                 },
                 options: {
@@ -2544,12 +1485,12 @@
                 data: {
                     labels: monthLabels,
                     datasets: [{
-                        label: '总工时', data: monthlyHours, borderColor: '#8B4513',
-                        backgroundColor: 'rgba(139, 69, 19, 0.1)', borderWidth: 3, fill: true,
+                        label: '总工时', data: monthlyHours, borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)', borderWidth: 2, fill: true,
                         tension: 0.3, yAxisID: 'y'
                     }, {
-                        label: '月薪总额', data: monthlySalary, borderColor: '#228B22',
-                        backgroundColor: 'rgba(34, 139, 34, 0.1)', borderWidth: 3, fill: true,
+                        label: '月薪总额', data: monthlySalary, borderColor: '#f72585',
+                        backgroundColor: 'rgba(247, 37, 133, 0.1)', borderWidth: 2, fill: true,
                         tension: 0.3, yAxisID: 'y1'
                     }]
                 },
@@ -2592,18 +1533,18 @@
             Object.entries(records).forEach(([date, rec]) => {
                 if (date.startsWith(currentYear)) {
                     salaryByType[0] += (rec.normal || 0) * (rec.hourlyWage || 80);
-                    salaryByType[1] += (rec.overtime || 0) * (rec.overtimeWage || 100);
-                    salaryByType[2] += (rec.weekend || 0) * (rec.weekendWage || 120);
+                    salaryByType[1] += (rec.overtime || 0) * (rec.hourlyWage || 80);
+                    salaryByType[2] += (rec.weekend || 0) * (rec.hourlyWage || 80);
                 }
             });
             
             hoursPieChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['正班工时', '平时加班工时', '周末加班工时'],
+                    labels: ['正班工时', '加班工时', '周末加班'],
                     datasets: [{
                         data: [stats.normalHours, stats.overtimeHours, stats.weekendHours],
-                        backgroundColor: ['#228B22', '#FF8C00', '#D2691E'],
+                        backgroundColor: ['#4caf50', '#ff9800ef', '#e91e63'],
                         borderWidth: 0
                     }]
                 },
@@ -2627,7 +1568,7 @@
                     onClick: (e, elements) => {
                         if (elements.length > 0) {
                             const index = elements[0].index;
-                            const labels = ['正班工时', '平时加班工时', '周末加班工时'];
+                            const labels = ['正班工时', '加班工时', '周末加班'];
                             const hours = [stats.normalHours, stats.overtimeHours, stats.weekendHours];
                             const totalHours = stats.normalHours + stats.overtimeHours + stats.weekendHours;
                             const totalSalary = stats.salary;
@@ -2676,7 +1617,7 @@
             const list = document.getElementById('shortcutList');
             list.innerHTML = '';
             if (shortcuts.length === 0) {
-                list.innerHTML = '<div style="text-align:center;color:var(--gray);padding:25px;">暂无快捷，点击下方"添加"创建</div>';
+                list.innerHTML = '<div style="text-align:center;color:var(--gray);padding:20px;">暂无快捷，点击下方"添加"创建</div>';
                 return;
             }
             shortcuts.forEach((s, idx) => {
@@ -2685,7 +1626,7 @@
                 div.innerHTML = `
                     <div>
                         <strong>${s.name}</strong><br>
-                        <small>正班:${s.normal}h 平时加班:${s.overtime}h 周末加班:${s.weekend}h 时薪:¥${s.wage} 平时加班时薪:¥${s.overtimeWage} 周末加班时薪:¥${s.weekendWage}</small>
+                        <small>正班:${s.normal}h 加班:${s.overtime}h 周末:${s.weekend}h 时薪:¥${s.wage}</small>
                     </div>
                     <button class="del-shortcut" data-idx="${idx}"><i class="fas fa-times"></i></button>
                 `;
@@ -2694,8 +1635,7 @@
                         const str = formatDate(selectedDate);
                         records[str] = {
                             normal: s.normal, overtime: s.overtime,
-                            weekend: s.weekend, hourlyWage: s.wage,
-                            overtimeWage: s.overtimeWage, weekendWage: s.weekendWage
+                            weekend: s.weekend, hourlyWage: s.wage
                         };
                         saveAll();
                         renderAll();
@@ -2719,7 +1659,7 @@
             const list = document.getElementById('batchShortcutList');
             list.innerHTML = '';
             if (shortcuts.length === 0) {
-                list.innerHTML = '<div style="text-align:center;color:var(--gray);padding:25px;">暂无快捷，请先添加快捷打卡</div>';
+                list.innerHTML = '<div style="text-align:center;color:var(--gray);padding:20px;">暂无快捷，请先添加快捷打卡</div>';
                 return;
             }
             shortcuts.forEach((s, idx) => {
@@ -2728,7 +1668,7 @@
                 div.innerHTML = `
                     <div>
                         <strong>${s.name}</strong><br>
-                        <small>正班:${s.normal}h 平时加班:${s.overtime}h 周末加班:${s.weekend}h 时薪:¥${s.wage} 平时加班时薪:¥${s.overtimeWage} 周末加班时薪:¥${s.weekendWage}</small>
+                        <small>正班:${s.normal}h 加班:${s.overtime}h 周末:${s.weekend}h 时薪:¥${s.wage}</small>
                     </div>
                 `;
                 div.addEventListener('click', () => applyBatchPunch(s));
@@ -2769,10 +1709,7 @@
         
         /* 计算日薪 */
         function calculateDaily(rec) {
-            const normalPay = (rec.normal || 0) * (rec.hourlyWage || 80);
-            const overtimePay = (rec.overtime || 0) * (rec.overtimeWage || 100);
-            const weekendPay = (rec.weekend || 0) * (rec.weekendWage || 120);
-            return normalPay + overtimePay + weekendPay;
+            return ((rec.normal || 0) + (rec.overtime || 0) + (rec.weekend || 0)) * (rec.hourlyWage || 80);
         }
         
         /* 统一刷新 */
@@ -2782,7 +1719,6 @@
             renderDataPreview();
             renderStats();
             renderShortcuts();
-            updateInfoDisplay();
         }
         
         /* 模态框 */
@@ -2793,8 +1729,6 @@
             document.getElementById('overtimeHours').value = rec ? rec.overtime || 0 : 0;
             document.getElementById('weekendHours').value = rec ? rec.weekend || 0 : 0;
             document.getElementById('hourlyWage').value = rec ? rec.hourlyWage || 80 : 80;
-            document.getElementById('overtimeWage').value = rec ? rec.overtimeWage || 100 : 100;
-            document.getElementById('weekendWage').value = rec ? rec.weekendWage || 120 : 120;
             openModal('punchModal');
         }
         
@@ -2836,9 +1770,8 @@
             
             const exportData = {
                 records: Object.entries(records).map(([date, rec]) => ({
-                    日期: date, 正班工时: rec.normal || 0, 平时加班工时: rec.overtime || 0,
-                    周末加班工时: rec.weekend || 0, 时薪: rec.hourlyWage || 80,
-                    平时加班时薪: rec.overtimeWage || 100, 周末加班时薪: rec.weekendWage || 120, 日薪: calculateDaily(rec)
+                    日期: date, 正班工时: rec.normal || 0, 加班工时: rec.overtime || 0,
+                    周末加班工时: rec.weekend || 0, 时薪: rec.hourlyWage || 80, 日薪: calculateDaily(rec)
                 })),
                 shortcuts: shortcuts
             };
@@ -2850,6 +1783,7 @@
             try {
                 let response;
                 if (gistId) {
+                    // 更新现有Gist
                     response = await fetch(`https://api.github.com/gists/${gistId}`, {
                         method: 'PATCH',
                         headers: {
@@ -2862,6 +1796,7 @@
                         })
                     });
                 } else {
+                    // 创建新Gist
                     response = await fetch('https://api.github.com/gists', {
                         method: 'POST',
                         headers: {
@@ -2919,18 +1854,18 @@
                 
                 const importedData = JSON.parse(file.content);
                 
+                // 处理导入数据
                 records = {};
                 importedData.records.forEach(item => {
                     records[item['日期']] = {
                         normal: parseFloat(item['正班工时'] || 0),
-                        overtime: parseFloat(item['平时加班工时'] || 0),
+                        overtime: parseFloat(item['加班工时'] || 0),
                         weekend: parseFloat(item['周末加班工时'] || 0),
-                        hourlyWage: parseFloat(item['时薪'] || 80),
-                        overtimeWage: parseFloat(item['平时加班时薪'] || 100),
-                        weekendWage: parseFloat(item['周末加班时薪'] || 120)
+                        hourlyWage: parseFloat(item['时薪'] || 80)
                     };
                 });
                 
+                // 保留当前快捷设置
                 const currentShortcuts = [...shortcuts];
                 shortcuts = importedData.shortcuts || currentShortcuts;
                 
@@ -2944,6 +1879,7 @@
             }
         }
         
+        /* 恢复云端数据 */
         async function recoverFromCloud() {
             if (!githubToken) {
                 updateGistStatus('请先设置GitHub Token', true);
@@ -2973,18 +1909,18 @@
                 
                 const importedData = JSON.parse(file.content);
                 
+                // 处理导入数据
                 records = {};
                 importedData.records.forEach(item => {
                     records[item['日期']] = {
                         normal: parseFloat(item['正班工时'] || 0),
-                        overtime: parseFloat(item['平时加班工时'] || 0),
+                        overtime: parseFloat(item['加班工时'] || 0),
                         weekend: parseFloat(item['周末加班工时'] || 0),
-                        hourlyWage: parseFloat(item['时薪'] || 80),
-                        overtimeWage: parseFloat(item['平时加班时薪'] || 100),
-                        weekendWage: parseFloat(item['周末加班时薪'] || 120)
+                        hourlyWage: parseFloat(item['时薪'] || 80)
                     };
                 });
                 
+                // 保留当前快捷设置
                 const currentShortcuts = [...shortcuts];
                 shortcuts = importedData.shortcuts || currentShortcuts;
                 
@@ -3010,14 +1946,12 @@
                 currentMonth--;
                 if (currentMonth < 0) { currentMonth = 11; currentYear--; }
                 renderCalendar(currentYear, currentMonth);
-                updateInfoDisplay();
             });
             
             document.getElementById('nextMonth').addEventListener('click', () => {
                 currentMonth++;
                 if (currentMonth > 11) { currentMonth = 0; currentYear++; }
                 renderCalendar(currentYear, currentMonth);
-                updateInfoDisplay();
             });
             
             document.getElementById('todayBtn').addEventListener('click', () => {
@@ -3025,7 +1959,6 @@
                 currentYear = currentDate.getFullYear();
                 currentMonth = currentDate.getMonth();
                 renderCalendar(currentYear, currentMonth);
-                updateInfoDisplay();
             });
         
             /* 批量打卡功能 */
@@ -3060,122 +1993,7 @@
             });
             
             document.getElementById('cancelBatch').addEventListener('click', () => closeModal('batchModal'));
-            
-            /* 数据预览筛选和批量更改 */
-            // 筛选按钮
-            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    applyFilter(btn.dataset.filter);
-                });
-            });
-            
-            // 日期搜索
-            document.getElementById('dateFilter').addEventListener('input', (e) => {
-                filterDate = e.target.value;
-                applyFilter(currentFilter);
-            });
-            
-            // 工时搜索
-            document.getElementById('hoursFilter').addEventListener('input', (e) => {
-                filterHours = parseFloat(e.target.value) || 0;
-                applyFilter(currentFilter);
-            });
-            
-            // 全选筛选结果
-            document.getElementById('selectAllFiltered').addEventListener('click', () => {
-                const visibleRows = document.querySelectorAll('#dataTableBody tr:not(.hidden)');
-                visibleRows.forEach(row => {
-                    const date = row.dataset.date;
-                    const checkbox = row.querySelector('.row-select');
-                    if (checkbox && !checkbox.checked) {
-                        checkbox.checked = true;
-                        selectedRows.add(date);
-                        row.classList.add('selected');
-                    }
-                });
-                updateBatchEditControls();
-            });
-            
-            // 清除选择
-            document.getElementById('clearSelection').addEventListener('click', () => {
-                selectedRows.clear();
-                document.querySelectorAll('.row-select').forEach(cb => cb.checked = false);
-                document.querySelectorAll('#dataTableBody tr').forEach(row => row.classList.remove('selected'));
-                updateBatchEditControls();
-            });
-            
-            // 全选复选框
-            document.getElementById('selectAllCheckbox').addEventListener('change', (e) => {
-                const checkboxes = document.querySelectorAll('.row-select:not(:disabled)');
-                checkboxes.forEach(cb => {
-                    cb.checked = e.target.checked;
-                    const date = cb.dataset.date;
-                    const tr = cb.closest('tr');
-                    
-                    if (e.target.checked) {
-                        selectedRows.add(date);
-                        tr.classList.add('selected');
-                    } else {
-                        selectedRows.delete(date);
-                        tr.classList.remove('selected');
-                    }
-                });
-                updateBatchEditControls();
-            });
-            
-            // 批量更改选项
-            document.querySelectorAll('.batch-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    document.querySelectorAll('.batch-option').forEach(o => o.classList.remove('active'));
-                    option.classList.add('active');
-                    batchEditType = option.dataset.type;
-                    
-                    // 根据选择显示/隐藏相关输入框
-                    const form = document.getElementById('batchEditForm');
-                    const inputs = form.querySelectorAll('input');
-                    
-                    if (batchEditType === 'hours') {
-                        // 只改工时：显示前3个，隐藏后3个
-                        inputs.forEach((input, index) => {
-                            input.disabled = index >= 3;
-                            input.parentElement.style.opacity = index >= 3 ? '0.5' : '1';
-                        });
-                    } else if (batchEditType === 'wages') {
-                        // 只改时薪：隐藏前3个，显示后3个
-                        inputs.forEach((input, index) => {
-                            input.disabled = index < 3;
-                            input.parentElement.style.opacity = index < 3 ? '0.5' : '1';
-                        });
-                    } else {
-                        // 工时和时薪都改：全部显示
-                        inputs.forEach(input => {
-                            input.disabled = false;
-                            input.parentElement.style.opacity = '1';
-                        });
-                    }
-                    
-                    updateBatchEditSummary();
-                });
-            });
-            
-            // 批量更改表单输入监听
-            ['batchNormal', 'batchOvertime', 'batchWeekend', 'batchWage', 'batchOvertimeWage', 'batchWeekendWage'].forEach(id => {
-                document.getElementById(id).addEventListener('input', updateBatchEditSummary);
-            });
-            
-            // 批量更改确认
-            document.getElementById('confirmBatchEdit').addEventListener('click', applyBatchEdit);
-            
-            // 批量更改取消
-            document.getElementById('cancelBatchEdit').addEventListener('click', () => {
-                selectedRows.clear();
-                document.querySelectorAll('.row-select').forEach(cb => cb.checked = false);
-                document.querySelectorAll('#dataTableBody tr').forEach(row => row.classList.remove('selected'));
-                updateBatchEditControls();
-            });
-            
+        
             /* 模态框关闭 */
             document.getElementById('cancelPunch').addEventListener('click', () => closeModal('punchModal'));
             document.getElementById('cancelQuick').addEventListener('click', () => closeModal('quickModal'));
@@ -3189,9 +2007,7 @@
                 const o = parseFloat(document.getElementById('overtimeHours').value) || 0;
                 const w = parseFloat(document.getElementById('weekendHours').value) || 0;
                 const h = parseFloat(document.getElementById('hourlyWage').value) || 80;
-                const ow = parseFloat(document.getElementById('overtimeWage').value) || 100;
-                const ww = parseFloat(document.getElementById('weekendWage').value) || 120;
-                records[str] = { normal: n, overtime: o, weekend: w, hourlyWage: h, overtimeWage: ow, weekendWage: ww };
+                records[str] = { normal: n, overtime: o, weekend: w, hourlyWage: h };
                 saveAll();
                 renderAll();
                 closeModal('punchModal');
@@ -3208,9 +2024,7 @@
                     normal: parseFloat(document.getElementById('quickNormal').value) || 0,
                     overtime: parseFloat(document.getElementById('quickOvertime').value) || 0,
                     weekend: parseFloat(document.getElementById('quickWeekend').value) || 0,
-                    wage: parseFloat(document.getElementById('quickWage').value) || 80,
-                    overtimeWage: parseFloat(document.getElementById('quickOvertimeWage').value) || 100,
-                    weekendWage: parseFloat(document.getElementById('quickWeekendWage').value) || 120
+                    wage: parseFloat(document.getElementById('quickWage').value) || 80
                 });
                 saveAll();
                 renderShortcuts();
@@ -3220,8 +2034,6 @@
                 document.getElementById('quickOvertime').value = 0;
                 document.getElementById('quickWeekend').value = 0;
                 document.getElementById('quickWage').value = 80;
-                document.getElementById('quickOvertimeWage').value = 100;
-                document.getElementById('quickWeekendWage').value = 120;
             });
         
             /* 模态框内部标签切换 */
@@ -3242,7 +2054,6 @@
             document.getElementById('clearRecords').addEventListener('click', () => {
                 if (confirm('确认清除全部记录？不可恢复！')) {
                     records = {};
-                    selectedRows.clear();
                     saveAll();
                     renderAll();
                 }
@@ -3256,99 +2067,50 @@
             document.getElementById('confirmImport').addEventListener('click', () => {
                 const file = document.getElementById('importFile').files[0];
                 if (!file) {
-                    alert('请先选择要导入的文件');
+                    alert('请先选择要导入的 JSON 文件');
                     return;
                 }
-                
-                const fileName = file.name.toLowerCase();
-                const isCSV = fileName.endsWith('.csv');
-                const isJSON = fileName.endsWith('.json');
-                
-                if (!isCSV && !isJSON) {
-                    alert('请选择CSV或JSON格式的文件');
-                    return;
-                }
-                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
-                        if (isCSV) {
-                            // 处理CSV文件
-                            Papa.parse(e.target.result, {
-                                header: true,
-                                complete: function(results) {
-                                    const newRecords = {};
-                                    results.data.forEach(item => {
-                                        if (item['日期']) {
-                                            newRecords[item['日期']] = {
-                                                normal: parseFloat(item['正班工时'] || 0),
-                                                overtime: parseFloat(item['平时加班工时'] || 0),
-                                                weekend: parseFloat(item['周末加班工时'] || 0),
-                                                hourlyWage: parseFloat(item['时薪'] || 80),
-                                                overtimeWage: parseFloat(item['平时加班时薪'] || 100),
-                                                weekendWage: parseFloat(item['周末加班时薪'] || 120)
-                                            };
-                                        }
-                                    });
-                                    records = newRecords;
-                                    selectedRows.clear();
-                                    saveAll();
-                                    renderAll();
-                                    closeModal('importModal');
-                                    alert('CSV导入成功！');
-                                },
-                                error: function(error) {
-                                    console.error('CSV解析错误:', error);
-                                    alert('CSV文件解析失败，请检查格式');
-                                }
+                        const importedData = JSON.parse(e.target.result);
+                        if (importedData.records && importedData.shortcuts) {
+                            const newRecords = {};
+                            importedData.records.forEach(item => {
+                                newRecords[item['日期']] = {
+                                    normal: parseFloat(item['正班工时'] || 0),
+                                    overtime: parseFloat(item['加班工时'] || 0),
+                                    weekend: parseFloat(item['周末加班工时'] || 0),
+                                    hourlyWage: parseFloat(item['时薪'] || 80)
+                                };
                             });
+                            records = newRecords;
+                            shortcuts = importedData.shortcuts;
+                            saveAll();
+                            renderAll();
+                            closeModal('importModal');
+                            alert('导入成功！');
+                        } else if (Array.isArray(importedData)) {
+                            const newRecords = {};
+                            importedData.forEach(item => {
+                                newRecords[item['日期']] = {
+                                    normal: parseFloat(item['正班工时'] || 0),
+                                    overtime: parseFloat(item['加班工时'] || 0),
+                                    weekend: parseFloat(item['周末加班工时'] || 0),
+                                    hourlyWage: parseFloat(item['时薪'] || 80)
+                                };
+                            });
+                            records = newRecords;
+                            saveAll();
+                            renderAll();
+                            closeModal('importModal');
+                            alert('导入成功（旧格式）！');
                         } else {
-                            // 处理JSON文件
-                            const importedData = JSON.parse(e.target.result);
-                            if (importedData.records && importedData.shortcuts) {
-                                const newRecords = {};
-                                importedData.records.forEach(item => {
-                                    newRecords[item['日期']] = {
-                                        normal: parseFloat(item['正班工时'] || 0),
-                                        overtime: parseFloat(item['平时加班工时'] || 0),
-                                        weekend: parseFloat(item['周末加班工时'] || 0),
-                                        hourlyWage: parseFloat(item['时薪'] || 80),
-                                        overtimeWage: parseFloat(item['平时加班时薪'] || 100),
-                                        weekendWage: parseFloat(item['周末加班时薪'] || 120)
-                                    };
-                                });
-                                records = newRecords;
-                                shortcuts = importedData.shortcuts;
-                                selectedRows.clear();
-                                saveAll();
-                                renderAll();
-                                closeModal('importModal');
-                                alert('JSON导入成功！');
-                            } else if (Array.isArray(importedData)) {
-                                const newRecords = {};
-                                importedData.forEach(item => {
-                                    newRecords[item['日期']] = {
-                                        normal: parseFloat(item['正班工时'] || 0),
-                                        overtime: parseFloat(item['平时加班工时'] || 0),
-                                        weekend: parseFloat(item['周末加班工时'] || 0),
-                                        hourlyWage: parseFloat(item['时薪'] || 80),
-                                        overtimeWage: parseFloat(item['平时加班时薪'] || 100),
-                                        weekendWage: parseFloat(item['周末加班时薪'] || 120)
-                                    };
-                                });
-                                records = newRecords;
-                                selectedRows.clear();
-                                saveAll();
-                                renderAll();
-                                closeModal('importModal');
-                                alert('JSON导入成功（旧格式）！');
-                            } else {
-                                throw new Error('文件格式不正确');
-                            }
+                            throw new Error('文件格式不正确');
                         }
                     } catch (error) {
-                        console.error('解析错误:', error);
-                        alert('文件解析失败，请检查格式是否正确');
+                        console.error('解析 JSON 错误:', error);
+                        alert('导入失败，请检查文件格式是否正确');
                     }
                 };
                 reader.readAsText(file);
@@ -3397,36 +2159,11 @@
             });
         }
         
-        /* 更新批量更改摘要 */
-        function updateBatchEditSummary() {
-            const normal = parseFloat(document.getElementById('batchNormal').value) || 0;
-            const overtime = parseFloat(document.getElementById('batchOvertime').value) || 0;
-            const weekend = parseFloat(document.getElementById('batchWeekend').value) || 0;
-            const wage = parseFloat(document.getElementById('batchWage').value) || 80;
-            const overtimeWage = parseFloat(document.getElementById('batchOvertimeWage').value) || 100;
-            const weekendWage = parseFloat(document.getElementById('batchWeekendWage').value) || 120;
-            
-            let summaryText = '';
-            
-            if (batchEditType === 'hours') {
-                summaryText = `<strong>将更改工时：</strong><br>正班: ${normal}h, 平时加班: ${overtime}h, 周末加班: ${weekend}h`;
-            } else if (batchEditType === 'wages') {
-                summaryText = `<strong>将更改时薪：</strong><br>时薪: ¥${wage}, 平时加班时薪: ¥${overtimeWage}, 周末加班时薪: ¥${weekendWage}`;
-            } else {
-                summaryText = `<strong>将更改工时和时薪：</strong><br>正班: ${normal}h, 平时加班: ${overtime}h, 周末加班: ${weekend}h<br>时薪: ¥${wage}, 平时加班时薪: ¥${overtimeWage}, 周末加班时薪: ¥${weekendWage}`;
-            }
-            
-            const summaryEl = document.getElementById('batchEditSummary');
-            summaryEl.className = 'batch-edit-summary';
-            summaryEl.innerHTML = summaryText;
-        }
-        
         /* 导出文件 */
         function exportFile(type) {
             const data = Object.entries(records).map(([date, rec]) => ({
-                日期: date, 正班工时: rec.normal || 0, 平时加班工时: rec.overtime || 0,
-                周末加班工时: rec.weekend || 0, 时薪: rec.hourlyWage || 80,
-                平时加班时薪: rec.overtimeWage || 100, 周末加班时薪: rec.weekendWage || 120, 日薪: calculateDaily(rec)
+                日期: date, 正班工时: rec.normal || 0, 加班工时: rec.overtime || 0,
+                周末加班工时: rec.weekend || 0, 时薪: rec.hourlyWage || 80, 日薪: calculateDaily(rec)
             }));
             
             if (type === 'csv') {
